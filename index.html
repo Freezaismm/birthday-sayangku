@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Happy Birthday Nadine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Nunito:wght@400;700;900&family=Righteous&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #09090b;
+            --pink-neon: #ff2a7a;
+            --pink-soft: #fbcfe8;
+            --gold: #ffd700;
+            --card-bg: #1e293b;
+            --text-light: #f8fafc;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0; padding: 0;
+            background: radial-gradient(circle at center, #2e0819 0%, var(--bg-dark) 100%);
+            font-family: 'Nunito', sans-serif;
+            color: var(--text-light);
+            height: 100vh; overflow: hidden;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            user-select: none;
+        }
+
+        /* --- MUSIC BTN --- */
+        #music-btn {
+            position: absolute; top: 20px; right: 20px; z-index: 999;
+            background: rgba(255, 42, 122, 0.2); border: 1px solid var(--pink-neon);
+            width: 40px; height: 40px; border-radius: 50%;
+            display: none; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 20px; backdrop-filter: blur(5px);
+            transition: transform 0.2s;
+        }
+        #music-btn:active { transform: scale(0.9); }
+        .playing { animation: spin 4s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* --- SCREENS --- */
+        .screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 10;
+        }
+        .screen.active { display: flex; animation: fadeIn 0.8s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* --- SCREEN 0: INTRO ROMANTIS --- */
+        #screen-intro {
+            background: rgba(9, 9, 11, 0.9); backdrop-filter: blur(5px);
+            z-index: 20; text-align: center; cursor: pointer;
+        }
+        .bucin-title {
+            font-family: 'Dancing Script', cursive; font-size: 45px; color: var(--pink-neon);
+            text-shadow: 0 0 20px rgba(255, 42, 122, 0.8); margin: 0 0 10px 0;
+            animation: pulseGlow 2s infinite alternate;
+        }
+        .intro-text { font-size: 16px; color: var(--pink-soft); opacity: 0.9; }
+        .blink-text { margin-top: 40px; font-size: 12px; opacity: 0.5; animation: blink 1.5s infinite; letter-spacing: 2px; }
+        @keyframes pulseGlow { from { text-shadow: 0 0 10px var(--pink-neon); transform: scale(1); } to { text-shadow: 0 0 30px var(--pink-neon), 0 0 40px var(--pink-soft); transform: scale(1.05); } }
+        @keyframes blink { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.8; } }
+
+        /* --- SCREEN 1: BOOSTER PACK --- */
+        .pack-container {
+            position: relative; width: 220px; height: 350px;
+            background: linear-gradient(135deg, #ff0f7b, #f89b29); border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(255, 15, 123, 0.5), inset 0 0 20px rgba(255,255,255,0.3);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; transition: transform 0.1s; border: 4px solid rgba(255,255,255,0.4);
+            transform: translateY(-200%);
+        }
+        .pack-drop { animation: dropDown 1s cubic-bezier(0.25, 1.5, 0.5, 1) forwards; }
+        @keyframes dropDown { to { transform: translateY(0) rotate(-5deg); } }
+        .pack-container:active { transform: scale(0.95) rotate(-5deg); }
+        .pack-container h1 { font-family: 'Righteous', cursive; font-size: 28px; text-align: center; text-transform: uppercase; text-shadow: 2px 2px 0 #000; margin: 0; padding: 0 10px; }
+        
+        .ribbon {
+            position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 60px; height: 60px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23ffd700"><path d="M21.947 5.864c-.452-2.127-2.316-3.864-4.447-3.864-1.468 0-2.825.86-3.5 2.164-.675-1.304-2.032-2.164-3.5-2.164-2.131 0-3.995 1.737-4.447 3.864-.176.828.026 1.696.533 2.368l5.414 7.151 5.414-7.151c.507-.672.709-1.54.533-2.368z"/></svg>') no-repeat center; background-size: contain; z-index: 5;
+        }
+
+        .pack-tap { position: absolute; bottom: -50px; font-weight: bold; animation: bounce 1s infinite; color: var(--pink-neon); opacity: 0; transition: opacity 0.5s; }
+        .pack-tap.show { opacity: 1; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .tear-animation { animation: tearPack 0.8s forwards; }
+        @keyframes tearPack { 0% { transform: scale(1) rotate(-5deg); filter: brightness(1); } 50% { transform: scale(1.1) rotate(5deg); filter: brightness(1.5); } 100% { transform: scale(0) rotate(-10deg); opacity: 0; } }
+
+        /* --- SCREEN 2: CARD SLIDER --- */
+        .card-scene { width: 280px; height: 400px; position: relative; }
+        .card-face {
+            width: 100%; height: 100%; position: absolute; top: 0; left: 0; border-radius: 15px; box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            border: 8px solid #cbd5e1; background: var(--card-bg); display: flex; flex-direction: column; overflow: hidden; padding: 10px;
+        }
+
+        .slide-out-left { animation: slideOut 0.5s forwards cubic-bezier(0.8, 0, 0.2, 1); }
+        .slide-in-right { animation: slideIn 0.5s forwards cubic-bezier(0.8, 0, 0.2, 1); }
+        @keyframes slideOut { to { transform: translateX(-150%) rotate(-15deg); opacity: 0; } }
+        @keyframes slideIn { from { transform: translateX(150%) rotate(15deg); opacity: 0; } to { transform: translateX(0) rotate(0); opacity: 1; } }
+
+        /* Card Elements */
+        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid rgba(255,255,255,0.1); padding-bottom: 5px; margin-bottom: 10px;}
+        .card-name { font-weight: 900; font-size: 16px; margin: 0; }
+        .card-hp { font-weight: bold; color: var(--pink-neon); font-size: 14px; }
+        .card-image-frame { width: 100%; height: 160px; background: #000; border: 2px solid #fff; border-radius: 5px; overflow: hidden; position: relative; }
+        .card-image-frame img { width: 100%; height: 100%; object-fit: cover; }
+        .card-moves { margin-top: 15px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center;}
+        .move { margin-bottom: 10px; }
+        .move-title { font-weight: 900; font-size: 14px; display: flex; justify-content: space-between; }
+        .move-desc { font-size: 11px; opacity: 0.8; margin-top: 3px; }
+
+        .btn-next {
+            margin-top: 30px; padding: 12px 30px; background: linear-gradient(90deg, var(--pink-neon), #ff6b6b); color: #fff;
+            border-radius: 50px; font-weight: bold; border: none; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 42, 122, 0.4); transition: transform 0.2s;
+        }
+        .btn-next:active { transform: scale(0.95); }
+
+        .holo-overlay {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(125deg, rgba(255,255,255,0) 20%, rgba(255,255,255,0.4) 40%, rgba(255,255,255,0) 60%);
+            background-size: 200% 200%; pointer-events: none; mix-blend-mode: color-dodge; animation: holoShine 3s infinite; z-index: 5;
+        }
+        @keyframes holoShine { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .card-rare { border-color: var(--gold); }
+        .card-rare .card-name { color: var(--gold); }
+
+        /* --- SCREEN 3: FAKE ENDING --- */
+        .modal { background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+
+        /* --- SCREEN 4: SECRET RARE --- */
+        .glitch-anim { animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite; }
+        @keyframes glitch { 0% { transform: translate(0) } 20% { transform: translate(-5px, 5px) } 40% { transform: translate(-5px, -5px) } 60% { transform: translate(5px, 5px) } 80% { transform: translate(5px, -5px) } 100% { transform: translate(0) } }
+
+        #screen-secret { background: url('https://www.transparenttextures.com/patterns/stardust.png'), radial-gradient(circle at center, #2e0819 0%, #000000 100%); }
+        .secret-container { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 95%; max-height: 95vh; }
+
+        .card-secret-wrapper { position: relative; width: 220px; height: 320px; margin-bottom: 20px; animation: float 4s ease-in-out infinite; border-radius: 15px; }
+        .card-secret-wrapper::before {
+            content: ''; position: absolute; top: -4px; left: -4px; right: -4px; bottom: -4px;
+            background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+            z-index: -1; border-radius: 19px; background-size: 400%; animation: glowingRainbow 20s linear infinite;
+        }
+        @keyframes glowingRainbow { 0% { background-position: 0 0; } 50% { background-position: 400% 0; } 100% { background-position: 0 0; } }
+        .card-secret { width: 100%; height: 100%; position: relative; border: none; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
+
+        .glass-panel { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 42, 122, 0.3); border-radius: 15px; padding: 20px; width: 100%; max-width: 350px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
+        .long-text-box { font-size: 13.5px; line-height: 1.7; color: var(--pink-soft); max-height: 180px; overflow-y: auto; text-align: left; padding-right: 5px; }
+        .long-text-box::-webkit-scrollbar { width: 4px; }
+        .long-text-box::-webkit-scrollbar-thumb { background: var(--pink-neon); border-radius: 10px; }
+
+        /* Particles */
+        .particles { position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+        .heart { position: absolute; font-size: 20px; animation: floatUp 5s linear forwards; opacity: 0; }
+        @keyframes floatUp { 0% { transform: translateY(100vh) scale(0.5) rotate(0deg); opacity: 1; } 100% { transform: translateY(-100px) scale(1.5) rotate(45deg); opacity: 0; } }
+    </style>
+</head>
+<body>
+
+    <audio id="bgm" loop>
+        <source src="" type="audio/mpeg">
+    </audio>
+
+    <div id="music-btn" onclick="toggleMusic()">🎵</div>
+
+    <div class="particles" id="particles"></div>
+
+    <div id="screen-intro" class="screen active" onclick="startToPack()">
+        <h1 class="bucin-title">It's nadinee day'sss</h1>
+        <p class="intro-text">Siapa nihh yang udahh 18 tahunn!!!</p>
+        <p class="blink-text">click to continue</p>
+    </div>
+
+    <div id="screen-pack" class="screen">
+        <div class="pack-container" id="the-pack" onclick="openPack(this)">
+            <div class="ribbon"></div>
+            <h1 style="color:#fff;">Nadine's<br><span style="color:var(--gold);">B-Day</span><br>Card</h1>
+            <img src="https://placehold.co/100x100/000/ff2a7a?text=❤️" style="border-radius:50%; margin-top:15px; border:3px solid #fff;" alt="logo">
+        </div>
+        <div class="pack-tap" id="pack-tap-text">Tap to Open Pack!</div>
+    </div>
+
+    <div id="screen-card" class="screen">
+        <div class="card-scene">
+            <div id="active-card" class="card-face">
+                </div>
+        </div>
+        <div style="font-size: 13px; margin-top: 15px; opacity: 0.8; font-weight: bold; background:rgba(0,0,0,0.5); padding:5px 15px; border-radius:20px;" id="card-counter">Kartu 1 / 5</div>
+        <button class="btn-next" onclick="nextCard()">Slide buat buka yanh lain</button>
+    </div>
+
+    <div id="screen-fake" class="screen">
+        <div class="modal">
+            <h2 style="color:var(--pink-soft);">HAPPY BDAYY MY LOVE</h2>
+            <p>Selamatt ulang tahun yang ke 18 yaa sayangggg, terimakasihh telah membuka kartunyaaa.. tapii kurang baguss kalau gaada longteks kannn...</p>
+            <p>enjoyy longtextnyaa sayanggg</p>
+            <button class="btn-next" style="margin-top:15px;" onclick="triggerSecret()">Spesial card</button>
+        </div>
+    </div>
+
+    <div id="screen-secret" class="screen" style="z-index: 100;">
+        <div class="secret-container">
+            <h1 class="bucin-title" style="font-size:38px; margin-bottom: 20px;">joyeux anniversaire </h1>
+            <div class="card-secret-wrapper">
+                <div class="card-face card-secret" id="secret-card-content"></div>
+            </div>
+            <div class="glass-panel">
+                <div class="long-text-box" id="long-text-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* =========================================
+           LINK LAGU (UPLOAD MP3 KE CATBOX.MOE)
+           ========================================= */
+        // Ganti URL di bawah dengan link direct .mp3 dari catbox
+        const linkLaguCatbox = "https://files.catbox.moe/g50t8i.mp3"; 
+
+        /* =========================================
+           DATA 5 KARTU
+           ========================================= */
+        const cardsData = [
+            { type: 'common', name: 'About 18', hp: 'long life', image: 'https://files.catbox.moe/z7wt2h.jpg', moves: [{ name: 'Happy birthday cantikk', damage: '', desc: 'ga kerasa udah 18 tahunn yaa perasaan kemarinn baruu ajaa 17 tahunn, time flies so fast yaa' }, { name: 'Undip 26', damage: '', desc: 'dannnn di tahun ini cukup spesiall yaaa karenaa doa muu terkabull yaituu masukk undipp di inhummm' }] },
+            { type: 'uncommon', name: 'thanks card', hp: 'mon amour', image: 'https://files.catbox.moe/k95v9r.jpg', moves: [{ name: 'Timakasii yaaw', damage: '', desc: 'Timakasii karenaa dari kamu umur 16 tahun dan sekarang menginjak umur 17 tahun kamu masih sabar ngadepin aku' }, { name: 'Warm hug', damage: '', desc: 'Dan terimakasih yaa udah selalu ada disinii untuk menemani setiap proseskuu, iloveu' }] },
+            { type: 'common', name: 'Art of nadine', hp: 'proud of u', image: 'https://files.catbox.moe/svi4yh.jpg', moves: [{ name: 'Struggle', damage: '', desc: 'Tahun lalu tahun yang cukup beratt yaaa, di umur 17 banyakk skali strugglenya yaaa' }, { name: 'Tough', damage: '', desc: 'dann kamuu kuat bangett bisaa melewatii semuanyaa dengannn baikkk, veryy proudd off uu sayanggg' }] },
+            { type: 'uncommon', name: 'harapan', hp: 'for 18 yo', image: 'https://files.catbox.moe/vvi45n.jpg', moves: [{ name: '2026', damage: '', desc: 'Di tahun pertama kuliah ini semogaa kamu mendapatkan segala kelancaran yaaaa,semoga segala hal di permudah yaww ' }, { name: 'Dann', damage: '', desc: 'Dipertemukan dengan teman teman yang baikk kedepannyaaa, semogaa kuliahnyaa lancarrr, rezekinyaa lancarr dan sehat selalu yaa' }] },
+            { type: 'rare', name: 'Cantik', hp: '', image: 'https://files.catbox.moe/tk22x9.jpg', moves: [{ name: 'Beautiful women of all time', damage: '', desc: '18 tahun semakinn cantikk dann semakin ber auraa yaaww ekwkwkkw, intinyaa aku gabisa banyak banyakk berkata kata dehh semogaa di ulang tahuj kali ini kamuu bisa berbahagiaa yaaaa dann semuaa yang kamu cita citakan terkabulll aamiin' }] }
+        ];
+
+        /* =========================================
+           KARTU SECRET RARE (MUNCUL DI AKHIR)
+           ========================================= */
+        const secretCardData = {
+            name: 'Risk it all for you', hp: '∞ love', image: 'https://files.catbox.moe/rnp8hm.jpg',
+            moves: [{ name: 'New journey', damage: '', desc: 'secret card ini menggambarkan kalau hari ini adalah hari spesial buat kamu, di usia ke 18 ini akan banyak tantangan yang masih "secret" di masa yang akan datang.. tetap semangat yaa cantikkkk' }]
+        };
+
+        /* =========================================
+           SURAT UCAPAN PANJANG
+           ========================================= */
+        const birthdayLetter = `HAPPYY BIRTHDAYYY MYYY HONEYY BUNNYY SWEETIEEEEE\n\nwaawww absen absenn yangg udahh 18 tahunnn wkkwkwkwkw cepett bangettt yaaa tiba tibaa udahh 18 tahunnn, perasaan baru kemarin 16 tahun lhoo udah 2 tahun berlaluu ajaa nihh yaaaa...\n\nTerimakasihh yaa udahh bertahann selamaa iniii, kamuu kerenn bangettt bisa menginjak 18 tahunn denga prestasii yang luarr biasaaaa... terhitung cukupp bagusss sekaliii dalam usia 18 tahunn iniii... dann bisaa mendapatkan hadiah ulang tahun yang luarr biasaa yaituu snbp undipp dongg mestinyaaaa..\n\nSemoga di umur yang baru ini kamu makin bahagiaaa, dannn semua impian kamu tercapaiii, sehat sehatt teruss yaaa biar kita bisa terus sama sama lewatin banyak ulang tahun ke depannyaaaa, pokoknyaa di 18 tahunn iniii bisaa menjadii lembarann baruuu buatt kamuu yaaaa, bisaaa makinnn terbangg tinggii dongg tentunyaaaaa wkkwkwkwkwkwkw.\n\nTetep jadi nadine yang lucu,imutt, cantikk, pinterr,sholeha, ceriaa, sukaa berceritaaa dann yang paling pentingg kamu tetep jadi nadinee yang selaluu sayangg fathann yaaaaa wkwkwkkww...\n\nDi umur kamu yang sudah menginjak 18 inii semogaa kitaa masih bisaa terus bersama samaa yaaaa, tetep jadi manusia favoriteku pokoknyaaa maahhhhh, i loveee everyy part of uuu nadineee, tahun ini jadi nadinee yanh lebih tenangg, lebih dewasaa, dan lebihh ceriaa lagii yaaaa... \n Aku mintaa maaff yaaa di ulang tahun kali inii aku belum bisaa memberikan yang maksimal buat kamuuu... dann ga proper sama sekalii, dari segi hadiab maupun kata kataa.. sebenrnyaa banyak plan yang sudah ku rancang dari beberapa bulan sebelumnyaa, tapii banyakk keterbatasan yang menghalangi plankuu huhuuuu, jadinyaa beneer bener tidaa maksimal kali iniii, tapiii aku akan usahain se special mungkinn untuk ulang tahunmu yang ke 18 inii yaaaaa... walaupun masih belum sebanding apa yang sudah kamu berikan di ulang tahunku huhuuu\n sekali lagiii happyyy birthdayy yaaaa sayanggggg.... rayakann harii ini dengan pe uh kebahagiaaann yaaaaa... tetapp jadii manusiaa favoritkuu sampaii selamanyaaa yaaaaaa.... i loveeuuu sayaanggggggg 💙🩵💙🩵`;
+
+        /* =========================================
+           LOGIC GAME
+           ========================================= */
+        let currentCardIndex = 0;
+        let isSliding = false;
+        let isMusicPlaying = false;
+        const bgm = document.getElementById('bgm');
+        const musicBtn = document.getElementById('music-btn');
+
+        // Setup BGM
+        bgm.src = linkLaguCatbox;
+        bgm.volume = 0.5; // Volume background (0.0 sampai 1.0)
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            const now = audioCtx.currentTime;
+
+            if(type === 'chime') { osc.type = 'sine'; osc.frequency.setValueAtTime(659.25, now); osc.frequency.setValueAtTime(1046.50, now+0.1); gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now+0.5); osc.start(now); osc.stop(now+0.5); }
+            else if(type === 'tear') { osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, now); osc.frequency.exponentialRampToValueAtTime(10, now+0.3); gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now+0.3); osc.start(now); osc.stop(now+0.3); }
+            else if(type === 'swipe') { osc.type = 'sine'; osc.frequency.setValueAtTime(800, now); osc.frequency.exponentialRampToValueAtTime(200, now+0.2); gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now+0.2); osc.start(now); osc.stop(now+0.2); }
+            else if(type === 'glitch') { osc.type = 'square'; osc.frequency.setValueAtTime(50, now); osc.frequency.setValueAtTime(200, now+0.1); osc.frequency.setValueAtTime(50, now+0.2); gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0, now+0.4); osc.start(now); osc.stop(now+0.4); }
+            else if(type === 'win') { osc.type = 'triangle'; [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => { osc.frequency.setValueAtTime(freq, now + (i*0.15)); }); gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now+2); osc.start(now); osc.stop(now+2); }
+        }
+
+        function toggleMusic() {
+            if (isMusicPlaying) {
+                bgm.pause();
+                musicBtn.classList.remove('playing');
+                musicBtn.style.opacity = '0.5';
+            } else {
+                bgm.play().catch(e => console.log("Audio play failed:", e));
+                musicBtn.classList.add('playing');
+                musicBtn.style.opacity = '1';
+            }
+            isMusicPlaying = !isMusicPlaying;
+        }
+
+        function startToPack() {
+            playSound('chime');
+            
+            // PLAY MUSIC HERE
+            if(linkLaguCatbox.includes("catbox")) {
+                bgm.play().then(() => {
+                    isMusicPlaying = true;
+                    musicBtn.style.display = 'flex';
+                    musicBtn.classList.add('playing');
+                }).catch(e => console.log("Autoplay prevented:", e));
+            }
+
+            document.getElementById('screen-intro').classList.remove('active');
+            const screenPack = document.getElementById('screen-pack');
+            screenPack.classList.add('active');
+            const thePack = document.getElementById('the-pack');
+            thePack.classList.add('pack-drop');
+            setTimeout(() => { document.getElementById('pack-tap-text').classList.add('show'); }, 1000);
+        }
+
+        function openPack(el) {
+            playSound('tear');
+            el.classList.add('tear-animation');
+            document.getElementById('pack-tap-text').style.display = 'none';
+            setTimeout(() => {
+                document.getElementById('screen-pack').classList.remove('active');
+                document.getElementById('screen-card').classList.add('active');
+                renderCard(0);
+                document.getElementById('active-card').classList.add('slide-in-right');
+            }, 800);
+        }
+
+        function generateCardHTML(data, isSecret = false) {
+            let movesHTML = '';
+            data.moves.forEach(m => { movesHTML += `<div class="move"><div class="move-title"><span>${m.name}</span> <span>${m.damage}</span></div><div class="move-desc">${m.desc}</div></div>`; });
+            return `<div class="card-header"><div class="card-name">${data.name}</div><div class="card-hp">${data.hp}</div></div><div class="card-image-frame"><img src="${data.image}" alt="Card Image"></div><div class="card-moves">${movesHTML}</div>${data.type === 'rare' || isSecret ? '<div class="holo-overlay"></div>' : ''}`;
+        }
+
+        function renderCard(index) {
+            const data = cardsData[index];
+            const activeCard = document.getElementById('active-card');
+            activeCard.className = 'card-face ' + (data.type === 'rare' ? 'card-rare' : '');
+            activeCard.innerHTML = generateCardHTML(data);
+            document.getElementById('card-counter').innerText = `Kartu ${index + 1} / 5`;
+        }
+
+        function nextCard() {
+            if (isSliding) return;
+            isSliding = true;
+            const activeCard = document.getElementById('active-card');
+            activeCard.classList.remove('slide-in-right');
+            activeCard.classList.add('slide-out-left');
+            playSound('swipe');
+            setTimeout(() => {
+                currentCardIndex++;
+                if(currentCardIndex < cardsData.length) {
+                    renderCard(currentCardIndex);
+                    activeCard.classList.remove('slide-out-left');
+                    activeCard.classList.add('slide-in-right');
+                } else { showFakeEnding(); }
+                isSliding = false;
+            }, 500); 
+        }
+
+        function showFakeEnding() {
+            document.getElementById('screen-card').classList.remove('active');
+            document.getElementById('screen-fake').classList.add('active');
+        }
+
+        function triggerSecret() {
+            playSound('glitch');
+            const fakeScreen = document.getElementById('screen-fake');
+            fakeScreen.classList.add('glitch-anim');
+            setTimeout(() => {
+                fakeScreen.classList.remove('active', 'glitch-anim');
+                document.getElementById('screen-secret').classList.add('active');
+                playSound('win');
+                createHearts();
+                const secretDiv = document.getElementById('secret-card-content');
+                secretDiv.innerHTML = generateCardHTML(secretCardData, true);
+                typeWriter(birthdayLetter, 'long-text-content');
+            }, 800);
+        }
+
+        function typeWriter(text, elementId) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = ""; let i = 0;
+            function type() { if (i < text.length) { el.innerHTML += text.charAt(i) === '\n' ? '<br>' : text.charAt(i); i++; el.scrollTop = el.scrollHeight; setTimeout(type, 35); } }
+            type();
+        }
+
+        function createHearts() {
+            const container = document.getElementById('particles');
+            const colors = ['#ff2a7a', '#fbcfe8', '#ffd700', '#fff'];
+            for(let i=0; i<50; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart'; heart.innerHTML = i % 3 === 0 ? '✨' : '❤️';
+                heart.style.left = Math.random() * 100 + 'vw'; heart.style.animationDelay = Math.random() * 3 + 's';
+                heart.style.color = colors[Math.floor(Math.random() * colors.length)]; container.appendChild(heart);
+            }
+        }
+    </script>
+</body>
+</html>
